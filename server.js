@@ -18,6 +18,9 @@ app.get('/', (req, res) => {
         port: process.env.PORT || 3000
     });
 });
+app.get('/test', (req, res) => {
+    res.send('✅ Express is working');
+  });
 app.use('/api/tasks', taskRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
