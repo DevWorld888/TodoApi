@@ -4,6 +4,7 @@ import connectDB from './config/db.js';
 import taskRoutes from './routes/taskRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
+import aiRoutes from './routes/aiRoutes.js';
 const app = express();
 
 // Middleware for parsing JSON bodies
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/tasks', taskRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/ai', aiRoutes);
 app.use(errorHandler);  
 // Start server
 const PORT = process.env.PORT || 3000; // Will read from .env file
