@@ -1,7 +1,8 @@
 import openai from '../config/openai.js';
+import Task from '../models/Tasks.js';
 
 export const suggestTasks = async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, save = false } = req.body;
 
   if (!prompt) {
     return res.status(400).json({ message: 'Prompt is required' });
@@ -23,9 +24,35 @@ export const suggestTasks = async (req, res) => {
     });
 
     const response = completion.choices[0].message.content;
-    res.status(200).json({ suggestions: response.trim() });
+    const taskLines = response
+      .trim()
+      .split('\n')
+      .filter(line => line.trim() !== '');
+    if (save) {
+      const savedTasks = [];
+      for (const line of taskLines) {
+        const cleanTitle = line.replace(/^\d+\.\s*/, ''); // Quitar "1. "
+
+        const task = await Task.create({
+          title: cleanTitle,
+          user: req.user._id,
+        });
+
+        savedTasks.push(task);
+      }
+
+      res.status(201).json({
+        message: 'Tareas generadas y guardadas exitosamente',
+        tasks: savedTasks,
+      });
+    } else {
+      return res.status(200).json({
+        message: 'Tasks generated (not saved)',
+        taskLines,
+      });
+    }
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error generating suggestions' });
+    console.error('❌ Error al generar tareas con IA:', err.message);
+    res.status(500).json({ message: 'Error al generar tareas con IA' });
   }
 };
